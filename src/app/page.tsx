@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
   return (
     <main>
-      <Input name="name" placeholder="John Doe" />
-      <Button variant={"secondary"}>Create testimonial</Button>
+      Landing Page
+      <Link href={"/testimonial"}>
+        <Button variant={"secondary"}>Testimonial</Button>
+      </Link>
     </main>
   );
 }
