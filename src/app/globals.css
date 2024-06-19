@@ -68,7 +68,7 @@
 
 @layer base {
   * {
-    @apply border-border box-border;
+    @apply box-border border-border;
     min-width: 0;
     font: inherit;
   }
@@ -96,4 +96,7 @@
 }
 
 @layer utilities {
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
 }

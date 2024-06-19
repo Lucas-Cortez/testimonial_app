@@ -69,7 +69,7 @@ export function TextForm({}: TextFormProps) {
           </div>
         </div>
 
-        <Button variant={"secondary"}>Create testimonial</Button>
+        <Button>Create testimonial</Button>
       </form>
     </div>
   );

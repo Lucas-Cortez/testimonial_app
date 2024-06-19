@@ -18,6 +18,7 @@ const config = {
       },
     },
     extend: {
+      rotate: { "y-180": "rotateY(180deg)" },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

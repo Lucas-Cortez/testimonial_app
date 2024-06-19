@@ -1,90 +1,154 @@
 "use client";
 
-import { Trash, Upload, XIcon } from "lucide-react";
+import { Pause, Play, Trash, Upload, Video, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { ChangeEventHandler, MouseEventHandler, MutableRefObject, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  MouseEventHandler,
+  MutableRefObject,
+  useCallback,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import { useTimer } from "react-timer-hook";
 
 interface VideoInputProps {}
 
-export function VideoInput({}: VideoInputProps) {
-  const [video, setVideo] = useState<File | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+const formatToWatchNumber = (value: number) => value.toString().padStart(2, "0");
 
-  const uploadLocalFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
+type Status = {
+  recording: boolean;
+  capturing: boolean;
+  loading: boolean;
+};
+
+export function VideoInput({}: VideoInputProps) {
+  const [status, setStatus] = useState<Status>({
+    recording: false,
+    capturing: false,
+    loading: false,
+  });
+  const [video, setVideo] = useState<File | null>(null);
+  // const [recording, setRecording] = useState<boolean>(false);
+  // const [capturing, setCapturing] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef: MutableRefObject<MediaRecorder | null> = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { start, restart, seconds, minutes } = useTimer({
+    expiryTimestamp: new Date(Date.now() + 1000 * 10),
+    autoStart: false,
+    onExpire: () => stopRecording(),
+  });
+
+  const dispatchStatus = (newState: Partial<Status>) => setStatus((prev) => ({ ...prev, ...newState }));
+
+  const uploadLocalFile = useCallback<React.ChangeEventHandler<HTMLInputElement>>(async (e) => {
     const file = e.target?.files?.[0];
 
     if (!file) return;
 
-    console.log(file);
-
     setVideo(file);
-  };
+  }, []);
 
-  const clearVideo: MouseEventHandler<HTMLSpanElement> = () => {
+  const clearVideo = useCallback<React.MouseEventHandler<HTMLSpanElement>>(() => {
     if (inputRef.current) inputRef.current.value = "";
     setVideo(null);
-  };
+  }, []);
 
-  const [recording, setRecording] = useState<boolean>(false);
-  const [videoURL, setVideoURL] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  // const mediaRecorderRef = useRef<MediaRecorder>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-  // const videoRef: MutableRefObject<HTMLVideoElement | null> = useRef(null);
-  const mediaRecorderRef: MutableRefObject<MediaRecorder | null> = useRef(null);
-  // const recordedChunksRef: MutableRefObject<Blob[]> = useRef([]);
+  const startCaptureVideo = useCallback(async () => {
+    dispatchStatus({ capturing: true, loading: true });
+    // setCapturing(true);
 
-  const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+      dispatchStatus({ loading: false });
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.error("Error accessing media devices.", err);
+      dispatchStatus({ capturing: false });
+      // setCapturing(false);
+    }
+  }, []);
 
-      mediaRecorder.ondataavailable = (event: BlobEvent) => {
-        if (event.data.size > 0) {
-          recordedChunksRef.current.push(event.data);
-        }
+  const stopCaptureVideo = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+
+      tracks.forEach((track) => track.stop());
+
+      // setCapturing(false);
+      dispatchStatus({ capturing: false });
+    }
+  }, []);
+
+  const startRecording = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/mp4" });
+
+      let recordedChunksRef: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordedChunksRef.push(event.data);
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
-        const url = URL.createObjectURL(blob);
-        setVideoURL(url);
-        recordedChunksRef.current = [];
+        const blob = new Blob(recordedChunksRef, { type: "video/mp4" });
+        const file = new File([blob], `video-${Date.now()}-${crypto.randomUUID()}`, {
+          lastModified: Date.now(),
+        });
+
+        setVideo(file);
+
+        recordedChunksRef = [];
       };
 
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
-      setRecording(true);
-    } catch (err) {
-      console.error("Error accessing media devices.", err);
+      start();
+      // setRecording(true);
+      dispatchStatus({ recording: true });
     }
-  };
+  }, [start]);
 
-  const stopRecording = () => {
+  const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+      restart(new Date(Date.now() + 1000 * 60 * 5), false);
     }
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach((track) => track.stop());
-    }
-    setRecording(false);
-  };
+
+    stopCaptureVideo();
+    // setRecording(false);
+    dispatchStatus({ recording: false });
+  }, [restart, stopCaptureVideo]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => stopCaptureVideo, []);
 
   return (
     <div className="space-y-4">
       <div>
         <Label htmlFor="testimonialVideo">Video</Label>
 
-        <div className="flex items-center gap-2">
-          <div>
+        <div className="grid grid-cols-9 gap-2">
+          <Button
+            variant={"outline"}
+            disabled={!!video}
+            type="button"
+            className="col-span-4"
+            onClick={startCaptureVideo}
+          >
+            Record video
+            <Video className="ml-2 h-4 w-4" />
+          </Button>
+
+          <>
             <Input
               name="testimonialVideo"
               id="testimonialVideo"
@@ -97,20 +161,22 @@ export function VideoInput({}: VideoInputProps) {
             />
             <Button
               variant={"outline"}
-              // disabled={!!video}
+              disabled={!!video}
               type="button"
-              onClick={() => inputRef.current?.click()}
+              className="col-span-4"
+              onClick={() => {
+                inputRef.current?.click();
+                stopCaptureVideo();
+              }}
             >
               Load video
               <Upload className="ml-2 h-4 w-4" />
             </Button>
-          </div>
+          </>
 
-          {!!video && (
-            <Button size={"icon"} variant={"ghost"} onClick={clearVideo}>
-              <Trash size={16} />
-            </Button>
-          )}
+          <Button variant={"ghost"} onClick={clearVideo}>
+            <Trash />
+          </Button>
         </div>
       </div>
 
@@ -124,21 +190,36 @@ export function VideoInput({}: VideoInputProps) {
       )}
 
       <div>
-        <video ref={videoRef} autoPlay playsInline></video>
-        <div>
-          {!recording ? (
-            <button onClick={startRecording}>Start Recording</button>
-          ) : (
-            <button onClick={stopRecording}>Stop Recording</button>
-          )}
-        </div>
+        {status.capturing ? (
+          <div className="relative">
+            <div className="w-full overflow-hidden rounded-md border-2 border-gray-200">
+              <video ref={videoRef} autoPlay muted className="rotate-y-180 h-full" hidden={status.loading} />
+              {status.loading ? (
+                <div className="flex h-24 w-full items-center justify-center">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-black border-l-transparent"></div>
+                </div>
+              ) : null}
+            </div>
 
-        {videoURL && (
-          <div>
-            <h3>Recorded Video:</h3>
-            <video src={videoURL} controls></video>
+            {status.recording ? (
+              <div className="absolute right-4 top-5 flex flex-col items-center text-red-600">
+                <div className="h-4 w-4 animate-pulse rounded-full bg-red-600"></div>
+                <span>{`${minutes}:${formatToWatchNumber(seconds)}`}</span>
+              </div>
+            ) : null}
+
+            {!status.loading ? (
+              <div className="absolute inset-0 flex items-center justify-center opacity-50">
+                <Button
+                  onClick={() => (status.recording ? stopRecording() : startRecording())}
+                  title={status.recording ? "Stop Recording" : "Start Recording"}
+                >
+                  {status.recording ? <Pause /> : <Play />}
+                </Button>
+              </div>
+            ) : null}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
