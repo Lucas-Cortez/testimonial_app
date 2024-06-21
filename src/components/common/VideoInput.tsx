@@ -4,17 +4,9 @@ import { Pause, Play, Trash, Upload, Video, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  ChangeEventHandler,
-  MouseEventHandler,
-  MutableRefObject,
-  useCallback,
-  useLayoutEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { MutableRefObject, useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useTimer } from "react-timer-hook";
+import { useForm } from "react-hook-form";
 
 interface VideoInputProps {}
 
@@ -33,11 +25,12 @@ export function VideoInput({}: VideoInputProps) {
     loading: false,
   });
   const [video, setVideo] = useState<File | null>(null);
-  // const [recording, setRecording] = useState<boolean>(false);
-  // const [capturing, setCapturing] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef: MutableRefObject<MediaRecorder | null> = useRef(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { register, control } = useForm<{ fileName: string }>({ defaultValues: { fileName: "" } });
+
   const { start, restart, seconds, minutes } = useTimer({
     expiryTimestamp: new Date(Date.now() + 1000 * 10),
     autoStart: false,
@@ -61,7 +54,6 @@ export function VideoInput({}: VideoInputProps) {
 
   const startCaptureVideo = useCallback(async () => {
     dispatchStatus({ capturing: true, loading: true });
-    // setCapturing(true);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -72,7 +64,6 @@ export function VideoInput({}: VideoInputProps) {
     } catch (err) {
       console.error("Error accessing media devices.", err);
       dispatchStatus({ capturing: false });
-      // setCapturing(false);
     }
   }, []);
 
@@ -82,7 +73,6 @@ export function VideoInput({}: VideoInputProps) {
 
       tracks.forEach((track) => track.stop());
 
-      // setCapturing(false);
       dispatchStatus({ capturing: false });
     }
   }, []);
@@ -104,6 +94,13 @@ export function VideoInput({}: VideoInputProps) {
           lastModified: Date.now(),
         });
 
+        const dataTransfer = new DataTransfer();
+
+        if (inputRef.current?.files) {
+          inputRef.current.setAttribute("value", String(file.name));
+          // inputRef.current.value = String(file.name);
+          inputRef.current.files = dataTransfer.files;
+        }
         setVideo(file);
 
         recordedChunksRef = [];
@@ -112,7 +109,6 @@ export function VideoInput({}: VideoInputProps) {
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       start();
-      // setRecording(true);
       dispatchStatus({ recording: true });
     }
   }, [start]);
@@ -124,7 +120,6 @@ export function VideoInput({}: VideoInputProps) {
     }
 
     stopCaptureVideo();
-    // setRecording(false);
     dispatchStatus({ recording: false });
   }, [restart, stopCaptureVideo]);
 
@@ -150,12 +145,15 @@ export function VideoInput({}: VideoInputProps) {
 
           <>
             <Input
-              name="testimonialVideo"
+              // name="testimonialVideo"
               id="testimonialVideo"
               type="file"
               accept="video/*"
               multiple={false}
-              onChange={uploadLocalFile}
+              // {...register("fileName")}
+              onChange={(e) => {
+                uploadLocalFile(e);
+              }}
               ref={inputRef}
               className="sr-only hidden"
             />
@@ -193,7 +191,7 @@ export function VideoInput({}: VideoInputProps) {
         {status.capturing ? (
           <div className="relative">
             <div className="w-full overflow-hidden rounded-md border-2 border-gray-200">
-              <video ref={videoRef} autoPlay muted className="rotate-y-180 h-full" hidden={status.loading} />
+              <video ref={videoRef} autoPlay muted className="h-full rotate-y-180" hidden={status.loading} />
               {status.loading ? (
                 <div className="flex h-24 w-full items-center justify-center">
                   <div className="h-16 w-16 animate-spin rounded-full border-4 border-black border-l-transparent"></div>
@@ -211,6 +209,7 @@ export function VideoInput({}: VideoInputProps) {
             {!status.loading ? (
               <div className="absolute inset-0 flex items-center justify-center opacity-50">
                 <Button
+                  type="button"
                   onClick={() => (status.recording ? stopRecording() : startRecording())}
                   title={status.recording ? "Stop Recording" : "Start Recording"}
                 >

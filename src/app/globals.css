@@ -90,6 +90,26 @@
   h6 {
     @apply text-balance;
   }
+
+  /* width */
+  ::-webkit-scrollbar {
+    @apply h-2 w-2;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-zinc-300;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-400;
+  }
 }
 
 @layer components {

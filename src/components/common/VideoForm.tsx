@@ -16,7 +16,7 @@ export function VideoForm({}: VideoFormProps) {
         action={async (formData: FormData) => {
           "use server";
 
-          console.log(formData);
+          console.log("VideoForm:", formData);
         }}
       >
         <div className="space-y-2">
