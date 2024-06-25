@@ -3,7 +3,8 @@ import Script from "next/script";
 export default function Test() {
   return (
     <main>
-      <Script
+      {/* <iframe src="http://localhost:3000/testimonial"></iframe> */}
+      {/* <Script
         type="text/javascript"
         src="https://testimonial.to/js/iframeResizer.min.js"
         strategy="beforeInteractive"
@@ -28,7 +29,7 @@ export default function Test() {
         data-redirect-click="https://testimonial.to/test-prototype/all"
         className="testimonial-to-embed w-fit"
         // style="width:fit-content"
-      ></div>
+      ></div> */}
     </main>
   );
 }

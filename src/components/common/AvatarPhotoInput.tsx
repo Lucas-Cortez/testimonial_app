@@ -20,7 +20,7 @@ export function AvatarPhotoInput({}: AvatarPhotoInputProps) {
 
     setImage(file);
 
-    await fetch("/api/protected");
+    // await fetch("/api/protected");
   };
 
   const clearImage: MouseEventHandler<HTMLSpanElement> = () => {

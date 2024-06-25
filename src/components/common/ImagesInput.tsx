@@ -23,8 +23,6 @@ export function ImagesInput({}: ImagesInputProps) {
     console.log(files);
 
     setImages((prev) => [...prev, ...files]);
-
-    // await fetch("/api/protected");
   };
 
   const clearImages: MouseEventHandler<HTMLSpanElement> = () => {

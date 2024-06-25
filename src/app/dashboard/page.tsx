@@ -1,9 +1,14 @@
-import { Header } from "@/components/common/Header";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function DashboardPage() {
   return (
     <main>
-      <Header />
+      <section className="mx-auto max-w-screen-lg pt-4">
+        <Link href={"/dashboard/create"}>
+          <Button>Create Form</Button>
+        </Link>
+      </section>
     </main>
   );
 }
