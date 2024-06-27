@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { TestimonialDialog } from "./TestimonialDialog";
 
 interface ReviewCardProps {
   headline: string;
@@ -39,11 +40,13 @@ export function ReviewCard({
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4">
-        <Button className="w-full" type="button" style={{ backgroundColor: customColor }}>
-          {customButtonMessage}
-        </Button>
+        <TestimonialDialog>
+          <Button className="w-full" type="button" style={{ backgroundColor: customColor }}>
+            {customButtonMessage}
+          </Button>
+        </TestimonialDialog>
 
-        <p>Powered by Pampa</p>
+        <p>Powered by Pampa ❤️</p>
       </CardFooter>
     </Card>
   );

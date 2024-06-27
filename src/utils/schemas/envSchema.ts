@@ -7,4 +7,7 @@ export const envServerSchema = envClientSchema.extend({
   GOOGLE_ID: z.string().trim(),
   GOOGLE_SECRET: z.string().trim(),
   DATABASE_URL: z.string().trim(),
+  CLOUDINARY_CLOUD_NAME: z.string().trim(),
+  CLOUDINARY_API_KEY: z.string().trim(),
+  CLOUDINARY_API_SECRET: z.string().trim(),
 });

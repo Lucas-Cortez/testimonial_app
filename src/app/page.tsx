@@ -6,7 +6,7 @@ export default async function Home() {
     <main>
       <p>Landing Page</p>
 
-      <Link href={"/testimonial"}>
+      <Link href={"/dashboard"}>
         <Button variant={"secondary"}>Testimonial</Button>
       </Link>
     </main>

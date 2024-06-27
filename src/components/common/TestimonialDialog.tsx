@@ -1,4 +1,3 @@
-import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,12 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { TextForm } from "./TextForm";
 import { VideoForm } from "./VideoForm";
 
-export function TestimonialDialog() {
+interface TestimonialDialogProps {
+  children: React.ReactNode;
+}
+
+export function TestimonialDialog({ children }: TestimonialDialogProps) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>Open</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="h-screen max-h-screen max-w-full overflow-y-auto sm:h-auto sm:max-w-lg">
         <DialogHeader>

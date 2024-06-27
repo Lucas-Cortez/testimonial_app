@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import { CreateFormValues } from "@/utils/schemas/createFormSchema";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { CreateFormValues } from "./CreatePageForm";
 import { Control, useWatch } from "react-hook-form";
 
 interface FormReviewCardWrapperProps {

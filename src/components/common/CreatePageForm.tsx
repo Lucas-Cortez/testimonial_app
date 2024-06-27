@@ -13,15 +13,14 @@ import { FormReviewCardWrapper } from "./FormReviewCardWrapper";
 import { OneImageInput } from "./OneImageInput";
 import { Label } from "../ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import { Required } from "./Required";
+import { CreateFormValues, FormType, createFormSchema } from "@/utils/schemas/createFormSchema";
+import { createFormAction } from "@/actions/createForm";
+import { createFormService } from "@/services/createFormService";
 
 interface CreatePageFormProps {}
 
-enum FormType {
-  TEXT = "text",
-  VIDEO = "video",
-}
-
-const items = [
+const FORM_TYPES = [
   { id: FormType.TEXT, label: "Text" },
   { id: FormType.VIDEO, label: "Video" },
 ];
@@ -46,32 +45,6 @@ const items = [
 //   redirectUrl: "",
 // };
 
-const LOGO_IMG_FILE_MAX_SIZE = 1024 * 1024 * 5;
-
-const createFormSchema = z.object({
-  logoImgFile: z
-    .custom<File>((file) => {
-      return file ? file instanceof File : true;
-    })
-    .refine((file) => (file ? file.size < LOGO_IMG_FILE_MAX_SIZE : true), {
-      message: "Please upload an image less than 5MB",
-    }),
-  headline: z.string().min(1),
-  customMessage: z.string().min(1),
-  accepts: z
-    .array(z.nativeEnum(FormType))
-    .refine((accepts) => accepts.length > 0, "Please select at least one type"),
-  customColor: z.string().optional(),
-  customButtonMessage: z.string().min(1),
-  customEnd: z.boolean(),
-  customEndMessage: z.string().optional(),
-  redirectUrl: z.string().url().optional(),
-});
-
-export type CreateFormValues = z.infer<typeof createFormSchema>;
-
-export const Required = () => <span className="text-red-600">*</span>;
-
 export function CreatePageForm({}: CreatePageFormProps) {
   const form = useForm<CreateFormValues>({
     resolver: zodResolver(createFormSchema),
@@ -81,17 +54,24 @@ export function CreatePageForm({}: CreatePageFormProps) {
       customMessage: "Custom Text",
       customButtonMessage: "Registry review",
       customColor: "#000000",
-      customEnd: false,
     },
   });
 
   const onSubmit = form.handleSubmit(
     async (data) => {
-      console.log("Success", data);
+      createFormService(data);
+
+      // fetch("/api/form", {
+      //   method: "POST",
+      //   // headers: {
+      //   //   "Content-Type": "application/json",
+      //   // },
+      //   // body: JSON.stringify(data),
+      // });
     },
-    (err) => {
-      console.log("Error:", err);
-    },
+    // (err) => {
+    //   console.log("Error:", err);
+    // },
   );
 
   return (
@@ -202,7 +182,7 @@ export function CreatePageForm({}: CreatePageFormProps) {
                   <FormItem>
                     <FormLabel>Review Type</FormLabel>
 
-                    {items.map((item) => (
+                    {FORM_TYPES.map((item) => (
                       <FormField
                         key={item.id}
                         control={form.control}
