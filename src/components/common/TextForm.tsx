@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagesInput } from "./ImagesInput";
 
-interface TextFormProps {}
+interface TextFormProps {
+  buttonColor: string;
+}
 
-export function TextForm({}: TextFormProps) {
+export function TextForm({ buttonColor }: TextFormProps) {
   return (
     <div className="flex w-full items-center justify-center">
       <form
@@ -69,7 +71,7 @@ export function TextForm({}: TextFormProps) {
           </div>
         </div>
 
-        <Button>Create testimonial</Button>
+        <Button style={{ backgroundColor: buttonColor }}>Create testimonial</Button>
       </form>
     </div>
   );

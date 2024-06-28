@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VideoInput } from "./VideoInput";
 
-interface VideoFormProps {}
+interface VideoFormProps {
+  buttonColor: string;
+}
 
-export function VideoForm({}: VideoFormProps) {
+export function VideoForm({ buttonColor }: VideoFormProps) {
   return (
     <div className="flex w-full items-center justify-center">
       <form
@@ -63,7 +65,7 @@ export function VideoForm({}: VideoFormProps) {
           </div>
         </div>
 
-        <Button>Create testimonial</Button>
+        <Button style={{ backgroundColor: buttonColor }}>Create testimonial</Button>
       </form>
     </div>
   );

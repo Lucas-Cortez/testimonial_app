@@ -80,6 +80,7 @@ model Authenticator {
 
 model Form {
   formId              String     @id @unique @default(cuid())
+  name                String
   headline            String
   customMessage       String
   customButtonMessage String

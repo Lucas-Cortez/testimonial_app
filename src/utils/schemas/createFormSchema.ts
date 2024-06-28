@@ -8,11 +8,12 @@ export enum FormType {
 const LOGO_IMG_FILE_MAX_SIZE = 1024 * 1024 * 1;
 
 export const createFormSchema = z.object({
+  name: z.string().min(1),
   logoImgFile: z
     .custom<File>((file) => (file ? file instanceof File : true))
     .optional()
     .refine((file) => (file ? file.size < LOGO_IMG_FILE_MAX_SIZE : true), {
-      message: "Please upload an image less than 5MB",
+      message: "Please upload an image less than 1MB",
     }),
   headline: z.string().min(1),
   customMessage: z.string().min(1),

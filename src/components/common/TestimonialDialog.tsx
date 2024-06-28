@@ -1,3 +1,4 @@
+import { FormType } from "@/utils/schemas/createFormSchema";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +13,11 @@ import { VideoForm } from "./VideoForm";
 
 interface TestimonialDialogProps {
   children: React.ReactNode;
+  accepts: FormType[];
+  buttonColor: string;
 }
 
-export function TestimonialDialog({ children }: TestimonialDialogProps) {
+export function TestimonialDialog({ children, accepts, buttonColor }: TestimonialDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -30,16 +33,16 @@ export function TestimonialDialog({ children }: TestimonialDialogProps) {
 
         <div>
           <Tabs defaultValue="account" className="h-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="text">Text</TabsTrigger>
-              <TabsTrigger value="video">Vídeo</TabsTrigger>
+            <TabsList className={`grid w-full ${accepts.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+              {accepts.includes(FormType.TEXT) ? <TabsTrigger value="text">Text</TabsTrigger> : null}
+              {accepts.includes(FormType.VIDEO) ? <TabsTrigger value="video">Vídeo</TabsTrigger> : null}
             </TabsList>
 
             <TabsContent value="text">
-              <TextForm />
+              <TextForm buttonColor={buttonColor} />
             </TabsContent>
             <TabsContent value="video">
-              <VideoForm />
+              <VideoForm buttonColor={buttonColor} />
             </TabsContent>
           </Tabs>
         </div>

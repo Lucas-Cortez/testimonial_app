@@ -1,5 +1,6 @@
 import { ReviewCard } from "@/components/common/ReviewCard";
 import { db } from "@/lib/db";
+import { FormType } from "@/utils/schemas/createFormSchema";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-static";
@@ -9,14 +10,17 @@ interface TestimonialProps {
 }
 
 export default async function Testimonial(props: TestimonialProps) {
-  const data = await db.form.findUnique({ where: { formId: props.params.formId } });
+  const data = await db.form.findUnique({
+    where: { formId: props.params.formId },
+    include: { accepts: true },
+  });
 
   if (!data) {
     notFound();
   }
 
   return (
-    <main className="flex h-[calc(100vh_-_4rem)] w-full max-w-screen-lg items-center justify-center">
+    <main className="mx-auto flex h-screen w-full max-w-screen-lg items-center justify-center">
       <div className="min-w-[28rem] max-w-lg">
         <ReviewCard
           headline={data.headline}
@@ -24,6 +28,7 @@ export default async function Testimonial(props: TestimonialProps) {
           customColor={data.customColor}
           customButtonMessage={data.customButtonMessage}
           logoImgUrl={data.logoImgUrl}
+          accepts={data.accepts.map((item) => item.value as FormType)}
         />
       </div>
     </main>

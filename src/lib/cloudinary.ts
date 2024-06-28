@@ -1,10 +1,21 @@
 import { envServer } from "@/utils/helpers/env";
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as baseCloudinary } from "cloudinary";
 
-cloudinary.config({
-  cloud_name: envServer.CLOUDINARY_CLOUD_NAME,
-  api_key: envServer.CLOUDINARY_API_KEY,
-  api_secret: envServer.CLOUDINARY_API_SECRET,
-});
+const cloudinary = {
+  configEnvironment: () => {
+    baseCloudinary.config({
+      cloud_name: envServer.CLOUDINARY_CLOUD_NAME,
+      api_key: envServer.CLOUDINARY_API_KEY,
+      api_secret: envServer.CLOUDINARY_API_SECRET,
+    });
+  },
+  ...baseCloudinary,
+};
+
+// cloudinary.config({
+//   cloud_name: envServer.CLOUDINARY_CLOUD_NAME,
+//   api_key: envServer.CLOUDINARY_API_KEY,
+//   api_secret: envServer.CLOUDINARY_API_SECRET,
+// });
 
 export { cloudinary };

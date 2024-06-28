@@ -1,13 +1,11 @@
-import { db } from "@/lib/db";
-import { createFormSchema } from "@/utils/schemas/createFormSchema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { db } from "@/lib/db";
+import { createFormSchema } from "@/utils/schemas/createFormSchema";
 
 const createFormSchemaServer = createFormSchema
   .omit({ logoImgFile: true })
   .extend({ logoImgUrl: z.string().url() });
-
-type Data = z.infer<typeof createFormSchemaServer>;
 
 export async function POST(request: NextRequest) {
   const data = await request.json();
@@ -18,6 +16,7 @@ export async function POST(request: NextRequest) {
 
   await db.form.create({
     data: {
+      name: newData.name,
       logoImgUrl: newData.logoImgUrl,
       headline: newData.headline,
       customMessage: newData.customMessage,

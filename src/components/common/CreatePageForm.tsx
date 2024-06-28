@@ -25,26 +25,6 @@ const FORM_TYPES = [
   { id: FormType.VIDEO, label: "Video" },
 ];
 
-// interface FormPage {
-//   headlineImgUrl: string;
-//   headline: string;
-//   customMessage: string;
-//   accepts: FormType[];
-//   customColor: string;
-//   customEndMessage?: string;
-//   redirectUrl?: string;
-// }
-
-// const formPage: FormPage = {
-//   headlineImgUrl: "",
-//   headline: "",
-//   customMessage: "",
-//   accepts: [FormType.TEXT],
-//   customColor: "",
-//   customEndMessage: "",
-//   redirectUrl: "",
-// };
-
 export function CreatePageForm({}: CreatePageFormProps) {
   const form = useForm<CreateFormValues>({
     resolver: zodResolver(createFormSchema),
@@ -59,15 +39,7 @@ export function CreatePageForm({}: CreatePageFormProps) {
 
   const onSubmit = form.handleSubmit(
     async (data) => {
-      createFormService(data);
-
-      // fetch("/api/form", {
-      //   method: "POST",
-      //   // headers: {
-      //   //   "Content-Type": "application/json",
-      //   // },
-      //   // body: JSON.stringify(data),
-      // });
+      await createFormService(data);
     },
     // (err) => {
     //   console.log("Error:", err);
@@ -79,6 +51,25 @@ export function CreatePageForm({}: CreatePageFormProps) {
       <Form {...form}>
         <form className="flex w-full flex-col space-y-6" onSubmit={onSubmit}>
           <div className="space-y-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Name
+                    <Required />
+                  </FormLabel>
+
+                  <FormControl>
+                    <Input placeholder="My Form" {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="logoImgFile"

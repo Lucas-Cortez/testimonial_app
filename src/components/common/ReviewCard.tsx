@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { FormType } from "@/utils/schemas/createFormSchema";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { TestimonialDialog } from "./TestimonialDialog";
@@ -6,6 +7,7 @@ import { TestimonialDialog } from "./TestimonialDialog";
 interface ReviewCardProps {
   headline: string;
   customMessage: string;
+  accepts: FormType[];
   customColor: string;
   customButtonMessage: string;
   logoImgUrl?: string;
@@ -15,6 +17,7 @@ export function ReviewCard({
   customButtonMessage,
   customColor,
   headline,
+  accepts,
   customMessage,
   logoImgUrl,
 }: ReviewCardProps) {
@@ -40,7 +43,7 @@ export function ReviewCard({
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4">
-        <TestimonialDialog>
+        <TestimonialDialog accepts={accepts} buttonColor={customColor}>
           <Button className="w-full" type="button" style={{ backgroundColor: customColor }}>
             {customButtonMessage}
           </Button>
